@@ -32,6 +32,6 @@ def classify_greeting(text: str) -> bool:
 
 def generate_greeting_response(client_name: str = "klien") -> str:
     """Menghasilkan respon sapaan sopan klien virtual tanpa memanggil LLM."""
-    clean_name = client_name.split()[0] if client_name else "klien"
-    return f"Halo, selamat pagi. Terima kasih sudah meluangkan waktu untuk mengobrol dengan saya."
+    clean_name = client_name.split()[0] if client_name else "Klien"
+    return f"Halo, selamat pagi. Saya {clean_name}. Terima kasih sudah meluangkan waktu untuk mengobrol dengan saya."
 

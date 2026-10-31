@@ -5,6 +5,7 @@ import asyncpg
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from api.deps import get_current_user, get_db, verify_session_ownership
+from core.errors import LLMServiceError
 from repositories.client_state import get_latest_client_state, save_client_state
 from repositories.scenarios import (
     build_scenario_snapshot,
@@ -21,9 +22,12 @@ from repositories.topics import (
 from repositories.turns import get_session_turns
 from schemas.session import (
     CreateSessionRequest,
+    CreateTurnRequest,
     EndSessionResponse,
     SessionResponse,
+    TurnResponse,
 )
+from services.simulation.orchestrator import get_session_lock, process_turn
 
 router = APIRouter(prefix="/sessions", tags=["sessions"])
 
@@ -156,6 +160,54 @@ async def get_session_detail(
         "turns": turns,
         "topics": topics,
     }
+
+
+@router.post("/{session_id}/turns", response_model=TurnResponse)
+async def send_counselor_turn(
+    session_id: int,
+    payload: CreateTurnRequest,
+    user: dict[str, Any] = Depends(get_current_user),
+    conn: asyncpg.Connection = Depends(get_db),
+) -> Any:
+    """Mengirim giliran ucapan konselor dan menerima respons klien virtual."""
+    session = await get_session_by_id(conn, session_id)
+    if not session:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Sesi dengan ID {session_id} tidak ditemukan.",
+        )
+
+    verify_session_ownership(session, user)
+
+    if session["status"] == "completed":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Sesi latihan ini sudah selesai dan tidak dapat menerima giliran percakapan baru.",
+        )
+
+    lock = await get_session_lock(session_id)
+    async with lock:
+        # Validasi ulang status sesi setelah memperoleh lock
+        current_session = await get_session_by_id(conn, session_id)
+        if current_session and current_session["status"] == "completed":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Sesi latihan ini sudah selesai dan tidak dapat menerima giliran percakapan baru.",
+            )
+
+        try:
+            return await process_turn(
+                conn=conn,
+                session=session,
+                counselor_utterance=payload.content,
+                start_ms=payload.start_ms,
+                end_ms=payload.end_ms,
+            )
+        except LLMServiceError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail=f"Layanan simulasi sedang mengalami kendala teknis: {exc}",
+            ) from exc
 
 
 @router.post("/{session_id}/end", response_model=EndSessionResponse)

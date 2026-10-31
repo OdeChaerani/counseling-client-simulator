@@ -52,7 +52,7 @@ async def get_latest_client_state(
                discord_context, discord_response, created_at
         FROM client_state_log
         WHERE session_id = $1
-        ORDER BY (turn_id IS NOT NULL) ASC, id DESC
+        ORDER BY id DESC
         LIMIT 1
         """,
         session_id,

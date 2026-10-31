@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import json
+import logging
 from typing import Any
 from core.config import get_settings
-from prompts.prompt_b_responder import SYSTEM_INSTRUCTION_B
+from prompts.prompt_b_responder import PROMPT_B_VERSION, SYSTEM_INSTRUCTION_B
 from schemas.client_state import ClientState
 from services.llm.gemini_client import get_gemini_client
+
+logger = logging.getLogger("safesesi.simulation.responder")
 
 
 async def generate_client_response_llm(
@@ -20,13 +23,16 @@ async def generate_client_response_llm(
     """Peran B: Client Responder (menghasilkan ucapan respon klien virtual).
 
     PEMBATASAN DI LEVEL KODE:
-    Hidden facts HANYA dikirimkan ke model LLM jika disclosure_level bukan 'guarded'.
+    Hidden facts HANYA dikirimkan ke prompt jika disclosure_level bukan 'guarded'.
     Jika 'guarded', list hidden facts dikosongkan.
+    Dilengkapi mekanisme retry 1x.
     """
     settings = get_settings()
     llm = get_gemini_client()
 
-    state_dict = new_state.model_dump() if isinstance(new_state, ClientState) else new_state
+    state_dict = (
+        new_state.model_dump() if isinstance(new_state, ClientState) else new_state
+    )
     current_disclosure = state_dict.get("disclosure_level", "guarded")
 
     # Code-level boundary enforcement based on system specification
@@ -68,10 +74,19 @@ Bicaralah sebagai klien virtual dengan menghayati persona dan kondisi di atas.
 Tanggapi ucapan konselor secara wajar dan ringkas (1–3 kalimat) dalam Bahasa Indonesia.
 """.strip()
 
-    return await llm.generate_text(
-        model=settings.GEMINI_MODEL_RESPONDER,
-        system_instruction=SYSTEM_INSTRUCTION_B,
-        user_prompt=user_prompt,
-        temperature=0.7,
-    )
+    last_exc: Exception | None = None
+    for attempt in range(2):
+        try:
+            return await llm.generate_text(
+                model=settings.GEMINI_MODEL_RESPONDER,
+                system_instruction=SYSTEM_INSTRUCTION_B,
+                user_prompt=user_prompt,
+                temperature=0.7,
+            )
+        except Exception as exc:
+            last_exc = exc
+            logger.warning(
+                "Percobaan %d pembuatan Client Responder gagal: %s", attempt + 1, exc
+            )
 
+    raise last_exc or RuntimeError("Gagal menghasilkan respons klien setelah 2 percobaan.")

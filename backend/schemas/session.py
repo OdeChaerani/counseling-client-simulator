@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from typing import Literal
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from schemas.client_state import ClientState
 from schemas.scenario import ScenarioSnapshot
@@ -38,6 +38,14 @@ class CreateTurnRequest(BaseModel):
     content: str = Field(..., min_length=1, description="Teks ucapan konselor")
     start_ms: int = Field(default=0, ge=0, description="Waktu awal bicara dalam milidetik")
     end_ms: int = Field(default=0, ge=0, description="Waktu akhir bicara dalam milidetik")
+
+    @field_validator("content")
+    @classmethod
+    def validate_content_not_empty(cls, v: str) -> str:
+        cleaned = v.strip()
+        if not cleaned:
+            raise ValueError("Teks ucapan konselor tidak boleh hanya berupa spasi kosong.")
+        return cleaned
 
 
 class TurnResponse(BaseModel):

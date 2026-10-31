@@ -1,16 +1,21 @@
 from __future__ import annotations
 
 import json
+import logging
 from typing import Any
 from pydantic import BaseModel, Field
 from core.config import get_settings
-from prompts.prompt_c_notes import SYSTEM_INSTRUCTION_C
+from prompts.prompt_c_notes import PROMPT_C_VERSION, SYSTEM_INSTRUCTION_C
 from services.llm.gemini_client import get_gemini_client
+
+logger = logging.getLogger("safesesi.simulation.notes")
 
 
 class TopicNoteUpdate(BaseModel):
     topic_name: str = Field(..., description="Nama topik yang diperbarui")
-    description: str = Field(..., description="Deskripsi rangkuman faktual yang diucapkan klien")
+    description: str = Field(
+        ..., description="Deskripsi rangkuman faktual yang diucapkan klien"
+    )
 
 
 class NotesUpdateResult(BaseModel):
@@ -25,7 +30,10 @@ async def update_topic_notes_llm(
     counselor_utterance: str,
     actual_client_response: str,
 ) -> list[TopicNoteUpdate]:
-    """Peran C: Notes Updater (memperbarui catatan perkembangan topik setelah respons klien terbentuk)."""
+    """Peran C: Notes Updater (memperbarui catatan perkembangan topik setelah respons klien terbentuk).
+
+    Dilengkapi mekanisme retry 1x.
+    """
     settings = get_settings()
     llm = get_gemini_client()
 
@@ -41,12 +49,21 @@ Periksa informasi nyata apa saja yang baru disampaikan oleh klien pada giliran i
 Hanya kembalikan topik yang mengalami pembaruan deskripsi. Jika tidak ada perubahan, kembalikan list kosong.
 """.strip()
 
-    result = await llm.generate_json(
-        model=settings.GEMINI_MODEL_NOTES,
-        system_instruction=SYSTEM_INSTRUCTION_C,
-        user_prompt=user_prompt,
-        response_schema=NotesUpdateResult,
-        temperature=0.2,
-    )
-    return result.updated_topics
+    last_exc: Exception | None = None
+    for attempt in range(2):
+        try:
+            result = await llm.generate_json(
+                model=settings.GEMINI_MODEL_NOTES,
+                system_instruction=SYSTEM_INSTRUCTION_C,
+                user_prompt=user_prompt,
+                response_schema=NotesUpdateResult,
+                temperature=0.2,
+            )
+            return result.updated_topics
+        except Exception as exc:
+            last_exc = exc
+            logger.warning(
+                "Percobaan %d pembaruan Notes Updater gagal: %s", attempt + 1, exc
+            )
 
+    raise last_exc or RuntimeError("Gagal memperbarui catatan topik setelah 2 percobaan.")
