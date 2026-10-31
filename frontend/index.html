@@ -1,12 +1,130 @@
 <!doctype html>
-<html lang="en">
+<html lang="id">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
+    <meta name="shell-type" content="web_dashboard" />
+    <title>SafeSesi · Ruang Belajar Konseling Virtual</title>
+
+    <!-- Google Fonts: Manrope & Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Google Material Symbols Outlined -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+      rel="stylesheet"
+    />
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              surface: "#f9f9ff",
+              "on-primary-fixed-variant": "#5d4200",
+              "secondary-fixed": "#e6deff",
+              "inverse-primary": "#fcbc24",
+              "primary-container": "#f5b51b",
+              secondary: "#605982",
+              "secondary-fixed-dim": "#c9c1f0",
+              tertiary: "#65587c",
+              "on-secondary": "#ffffff",
+              "primary-fixed-dim": "#fcbc24",
+              primary: "#7b5800",
+              "on-primary": "#ffffff",
+              "surface-dim": "#d3daea",
+              "on-background": "#151c27",
+              "primary-fixed": "#ffdea5",
+              outline: "#827561",
+              "on-secondary-fixed-variant": "#484269",
+              "outline-variant": "#d4c4ac",
+              "surface-container": "#e7eefe",
+              "on-error-container": "#93000a",
+              "on-surface-variant": "#504533",
+              "tertiary-fixed": "#ebddff",
+              "inverse-on-surface": "#ebf1ff",
+              "surface-tint": "#7b5800",
+              "surface-container-low": "#f0f3ff",
+              "on-secondary-fixed": "#1c163b",
+              "on-tertiary-container": "#54486b",
+              "tertiary-fixed-dim": "#cfc0e9",
+              "surface-container-lowest": "#ffffff",
+              "on-surface": "#151c27",
+              "secondary-container": "#d7cefe",
+              "on-error": "#ffffff",
+              "on-tertiary-fixed": "#201635",
+              "tertiary-container": "#c9b9e2",
+              background: "#f9f9ff",
+              "surface-container-high": "#e2e8f8",
+              "on-tertiary-fixed-variant": "#4d4163",
+              "on-primary-container": "#664900",
+              "on-tertiary": "#ffffff",
+              "error-container": "#ffdad6",
+              "surface-variant": "#dce2f3",
+              "on-primary-fixed": "#261900",
+              "surface-bright": "#f9f9ff",
+              "inverse-surface": "#2a313d",
+              error: "#ba1a1a",
+              "surface-container-highest": "#dce2f3",
+              "on-secondary-container": "#5d567f",
+            },
+            borderRadius: {
+              DEFAULT: "0.25rem",
+              lg: "0.5rem",
+              xl: "0.75rem",
+              "2xl": "1rem",
+              full: "9999px",
+            },
+            spacing: {
+              "space-xs": "4px",
+              "space-sm": "8px",
+              "space-md": "16px",
+              "space-lg": "24px",
+              "space-xl": "32px",
+              gutter: "16px",
+              margin: "32px",
+            },
+            fontFamily: {
+              caption: ["Manrope", "sans-serif"],
+              button: ["Manrope", "sans-serif"],
+              "body-sm": ["Manrope", "sans-serif"],
+              overline: ["Manrope", "sans-serif"],
+              body: ["Manrope", "sans-serif"],
+              label: ["Manrope", "sans-serif"],
+              helper: ["Manrope", "sans-serif"],
+              display: ["Poppins", "sans-serif"],
+              h3: ["Poppins", "sans-serif"],
+              h2: ["Poppins", "sans-serif"],
+              h1: ["Poppins", "sans-serif"],
+            },
+            fontSize: {
+              caption: ["12px", { lineHeight: "16px", fontWeight: "400" }],
+              button: ["14px", { lineHeight: "20px", fontWeight: "600" }],
+              "body-sm": ["14px", { lineHeight: "22px", fontWeight: "400" }],
+              overline: ["10px", { lineHeight: "14px", fontWeight: "600" }],
+              body: ["16px", { lineHeight: "24px", fontWeight: "400" }],
+              label: ["14px", { lineHeight: "20px", fontWeight: "500" }],
+              helper: ["12px", { lineHeight: "18px", fontWeight: "400" }],
+              display: ["48px", { lineHeight: "56px", fontWeight: "600" }],
+              h3: ["20px", { lineHeight: "28px", fontWeight: "600" }],
+              h2: ["24px", { lineHeight: "32px", fontWeight: "600" }],
+              h1: ["32px", { lineHeight: "40px", fontWeight: "600" }],
+            },
+          },
+        },
+      };
+    </script>
   </head>
-  <body>
+  <body class="bg-surface font-body text-body text-on-surface antialiased">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
