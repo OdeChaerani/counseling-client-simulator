@@ -11,6 +11,7 @@ docs/
 *.pdf
 *BRD*
 *brd*
+*.md
 backend/docs/
 
 # Python
