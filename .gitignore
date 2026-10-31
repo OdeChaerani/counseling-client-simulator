@@ -1,0 +1,34 @@
+# Environment & Credentials
+.env
+*.env
+backend/.env
+frontend/.env
+*.env.local
+
+# Documentation & BRD Files (Strictly Ignored)
+*.docx
+*.pdf
+*BRD*
+*brd*
+backend/docs/
+docs/*.docx
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+backend/venv/
+.pytest_cache/
+
+# Node / Frontend
+node_modules/
+frontend/node_modules/
+frontend/dist/
+
+# System & IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
