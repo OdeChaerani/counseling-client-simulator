@@ -5,13 +5,13 @@ backend/.env
 frontend/.env
 *.env.local
 
-# Documentation & BRD Files (Strictly Ignored)
+# Documentation (Local only)
+docs/
 *.docx
 *.pdf
 *BRD*
 *brd*
 backend/docs/
-docs/*.docx
 
 # Python
 __pycache__/
